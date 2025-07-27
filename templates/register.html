@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Infant Pain Detection Registration</title>
+  <style>
+    /* Add some basic styling to the registration page */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
+      background-image: url('{{ url_for("static", filename="im2.jpg") }}');
+      height: 100%;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: cover;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: 40px auto;
+      padding: 20px;
+      background-color: #fff;
+      border: 1px solid #ddd;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      opacity: 80%;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    label {
+      margin-bottom: 10px;
+    }
+
+    input[type="text"], input[type="password"] {
+      width: 100%;
+      height: 40px;
+      margin-bottom: 20px;
+      padding: 10px;
+      border: 1px solid #ccc;
+    }
+
+    select {
+      width: 100%;
+      height: 40px;
+      margin-bottom: 20px;
+      padding: 10px;
+      border: 1px solid #ccc;
+    }
+
+    input[type="submit"] {
+      width: 100%;
+      height: 40px;
+      background-color: #4CAF50;
+      color: #fff;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    input[type="submit"]:hover {
+      background-color: #3e8e41;
+    }
+
+    .registration-info {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .alert-box {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #fff;
+      border: 1px solid #ddd;
+      padding: 20px;
+      width: 300px;
+      text-align: center;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .alert-box h2 {
+      margin-top: 0;
+    }
+
+    .alert-box button {
+      background-color: #4CAF50;
+      color: #fff;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .alert-box button:hover {
+      background-color: #3e8e41;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Infant Pain Detection Registration</h1>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert-box">
+            <h2>{{ category.capitalize() }}</h2>
+            <p>{{ message }}</p>
+            <button onclick="this.parentNode.remove()">OK</button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    <form method="POST" action="{{ url_for('register') }}">
+      {{ form.hidden_tag() }}
+      <label for="infant-name">Infant Name:</label>
+      {{ form.infant_name(class="form-control", id="infant-name") }}<br><br>
+
+      <label for="username">Username:</label>
+      {{ form.username(class="form-control", id="username") }}<br><br>
+
+      <label for="password">Password:</label>
+      {{ form.password(class="form-control", id="password") }}<br><br>
+
+      <label for="confirm-password">Confirm Password:</label>
+      {{ form.confirm_password(class="form-control", id="confirm-password") }}<br><br>
+
+      <label for="role">Role:</label>
+      {{ form.role(class="form-control", id="role") }}<br><br>
+
+      <input type="submit" value="Register">
+    </form>
+    <div class="registration-info">
+      <p>Already have an account? <a href="{{ url_for('login') }}">Click here</a> to login.</p>
+    </div>
+  </div>
+
+  <!-- JavaScript code to handle registration functionality and form validation -->
+  <script>
+    const registrationForm = document.querySelector('form');
+
+    registrationForm.addEventListener('submit', (e) => {
+      const infantName = document.querySelector('#infant-name').value;
+      const username = document.querySelector('#username').value;
+      const password = document.querySelector('#password').value;
+      const confirmPassword = document.querySelector('#confirm-password').value;
+
+      // Form validation
+      if (infantName === '') {
+        alertBox('Error', 'Please enter infant name');
+        e.preventDefault();
+        return;
+      }
+      if (username === '') {
+        alertBox('Error', 'Please enter username');
+        e.preventDefault();
+        return;
+      }
+      if (password === '') {
+        alertBox('Error', 'Please enter password');
+        e.preventDefault();
+        return;
+      }
+      if (confirmPassword === '') {
+        alertBox('Error', 'Please enter confirm password');
+        e.preventDefault();
+        return;
+      }
+      if (password !== confirmPassword) {
+        alertBox('Error', 'Passwords do not match');
+        e.preventDefault();
+        return;
+      }
+
+      // Allow form submission if validation is successful
+    });
+
+    // Function to display alert box
+    function alertBox(title, message) {
+      const alertBox = document.createElement('div');
+      alertBox.className = 'alert-box';
+      alertBox.innerHTML = `
+        <h2>${title}</h2>
+        <p>${message}</p>
+        <button onclick="this.parentNode.remove()">OK</button>
+      `;
+      document.body.appendChild(alertBox);
+    }
+  </script>
+</body>
+</html>

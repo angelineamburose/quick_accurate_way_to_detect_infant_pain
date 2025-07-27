@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Record Child Cry</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0; 
+            background-image: url('{{ url_for("static", filename="im2.jpg") }}'); /* Background image */
+            height: 100vh; /* Full viewport height */
+            background-position: center; /* Center the image */
+            background-repeat: no-repeat; /* Prevent the image from repeating */
+            background-size: cover; /* Scale the image to cover the entire background */
+            padding: 20px; /* Add some padding if needed */
+        }
+        .container {
+            max-width: 400px;
+            margin: auto;
+            background: rgba(255, 255, 255, 0.9); /* Semi-transparent white background */
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            opacity: 90%;
+            text-align: center; /* Center align contents */
+        }
+        .icon {
+            font-size: 50px; /* Icon size */
+            cursor: pointer;
+            margin: 20px; /* Spacing around icons */
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+        .description {
+            font-size: 14px; /* Description size */
+            margin-top: 5px; /* Space between icon and description */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Record Child Cry</h1>
+        <i class="fas fa-microphone icon" id="start-recording" title="Start Recording"></i>
+        <div class="description">Start Recording</div>
+
+        <i class="fas fa-stop-circle icon" id="stop-recording" title="Stop Recording" style="display:none;"></i>
+        <div class="description" id="stop-description" style="display:none;">Stop Recording</div>
+
+        <audio id="audio-playback" controls></audio>
+
+        <!-- Form for uploading the recorded audio -->
+        <form id="upload-form" method="POST" action="{{ url_for('record') }}" enctype="multipart/form-data">
+            <input type="file" name="audio_data" id="audio-file" hidden>
+        </form>
+    </div>
+
+    <script>
+        let mediaRecorder;
+        let audioChunks = [];
+
+        document.getElementById('start-recording').addEventListener('click', async () => {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+
+            mediaRecorder.start();
+            document.getElementById('start-recording').style.display = 'none'; // Hide start icon
+            document.getElementById('stop-recording').style.display = 'block'; // Show stop icon
+            document.getElementById('stop-description').style.display = 'block'; // Show stop description
+
+            mediaRecorder.ondataavailable = event => {
+                audioChunks.push(event.data);
+            };
+
+            mediaRecorder.onstop = async () => {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                const audioUrl = URL.createObjectURL(audioBlob);
+                document.getElementById('audio-playback').src = audioUrl;
+
+                // Convert Blob to a File object
+                const file = new File([audioBlob], "child_cry.wav", { type: 'audio/wav' });
+
+                // Attach the file to the form input
+                const fileInput = document.getElementById('audio-file');
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                fileInput.files = dataTransfer.files;
+
+                // Automatically submit the form to upload the file
+                document.getElementById('upload-form').submit();
+
+                audioChunks = []; // Reset the chunks for the next recording
+            };
+        });
+
+        document.getElementById('stop-recording').addEventListener('click', () => {
+            mediaRecorder.stop();
+            document.getElementById('stop-recording').style.display = 'none'; // Hide stop icon
+            document.getElementById('stop-description').style.display = 'none'; // Hide stop description
+            document.getElementById('start-recording').style.display = 'block'; // Show start icon again
+        });
+    </script>
+</body>
+</html>
